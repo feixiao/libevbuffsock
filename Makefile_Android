@@ -1,0 +1,30 @@
+include ./config.mk
+
+# -DDEBUG
+CFLAGS = $(INC)  -g -Wall -O2  -fPIC
+
+
+all: libevbuffsock
+
+libevbuffsock: libevbuffsock.a test
+
+%.o: %.c
+	$(CC) -o $@ -c $< $(CFLAGS)
+
+libevbuffsock.a: buffered_socket.o buffer.o
+	$(AR) $(AR_FLAGS) $@ $^
+	$(RANLIB) $@
+
+test: test.o libevbuffsock.a  $(PREFIX)/lib/libev.a
+	$(CC) -o $@ $^ 
+
+clean:
+	rm -rf libbuffsock.a test *.o
+
+.PHONY: install clean all
+
+install:
+	install -m 755 -d ${DESTDIR}${INCDIR}
+	install -m 755 -d ${DESTDIR}${LIBDIR}
+	install -m 755 libevbuffsock.a ${DESTDIR}${LIBDIR}/libevbuffsock.a
+	install -m 755 evbuffsock.h ${DESTDIR}${INCDIR}/evbuffsock.h
